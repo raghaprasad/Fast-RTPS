@@ -136,7 +136,7 @@ bool StatefulReader::matched_writer_add(const WriterProxyData& wdata)
     }
 
     add_persistence_guid(wdata.guid(), wdata.persistence_guid());
-    wp->loaded_from_storage_nts(get_last_notified(wdata.guid()));
+    wp->loaded_from_storage(get_last_notified(wdata.guid()));
     matched_writers_.push_back(wp);
     logInfo(RTPS_READER, "Writer Proxy " << wp->guid() << " added to " << m_guid.entityId);
     return true;
@@ -456,7 +456,6 @@ bool StatefulReader::processGapMsg(
     if(acceptMsgFrom(writerGUID, &pWP))
     {
         // TODO (Miguel C): Refactor this inside WriterProxy
-        std::lock_guard<std::recursive_mutex> guardWriterProxy(*pWP->get_mutex());
         SequenceNumber_t auxSN;
         SequenceNumber_t finalSN = gapList.base() - 1;
         for(auxSN = gapStart; auxSN<=finalSN;auxSN++)
@@ -530,8 +529,6 @@ bool StatefulReader::change_received(
     }
 
     // TODO (Miguel C): Refactor this inside WriterProxy
-    std::unique_lock<std::recursive_mutex> writerProxyLock(*prox->get_mutex());
-
     size_t unknown_missing_changes_up_to = prox->unknown_missing_changes_up_to(a_change->sequenceNumber);
 
     if(this->mp_history->received_change(a_change, unknown_missing_changes_up_to))
@@ -547,8 +544,6 @@ bool StatefulReader::change_received(
             prox->lost_changes_update(aux_change->sequenceNumber);
             fragmentedChangePitStop_->try_to_remove_until(aux_change->sequenceNumber, proxGUID);
         }
-
-        writerProxyLock.unlock();
 
         NotifyChanges(prox);
 
@@ -782,7 +777,7 @@ void StatefulReader::send_acknack(
         {
             GUID_t guid = sender.remote_guids().at(0);
             SequenceNumberSet_t sns(writer->available_changes_max() + 1);
-    
+
             missing_changes.for_each(
                 [&](const SequenceNumber_t& seq)
                 {
@@ -800,23 +795,23 @@ void StatefulReader::send_acknack(
                     {
                         uncompleted_changes.push_back(uncomplete_change);
                     }
-    
+
                 });
-    
+
             acknack_count_++;
             logInfo(RTPS_READER, "Sending ACKNACK: " << sns;);
-    
+
             bool final = sns.empty();
             group.add_acknack(sns, acknack_count_, final);
         }
-    
+
         // Now generage NACK_FRAGS
         if (!uncompleted_changes.empty())
         {
             for (auto cit : uncompleted_changes)
             {
                 FragmentNumberSet_t frag_sns;
-    
+
                 //  Search first fragment not present.
                 uint32_t frag_num = 0;
                 auto fit = cit->getDataFragments()->begin();
@@ -826,26 +821,26 @@ void StatefulReader::send_acknack(
                     if (*fit == ChangeFragmentStatus_t::NOT_PRESENT)
                         break;
                 }
-    
+
                 // Never should happend.
                 assert(frag_num != 0);
                 assert(fit != cit->getDataFragments()->end());
-    
+
                 // Store FragmentNumberSet_t base.
                 frag_sns.base(frag_num);
-    
+
                 // Fill the FragmentNumberSet_t bitmap.
                 for (; fit != cit->getDataFragments()->end(); ++fit)
                 {
                     if (*fit == ChangeFragmentStatus_t::NOT_PRESENT)
                         frag_sns.add(frag_num);
-    
+
                     ++frag_num;
                 }
-    
+
                 ++nackfrag_count_;
                 logInfo(RTPS_READER, "Sending NACKFRAG for sample" << cit->sequenceNumber << ": " << frag_sns;);
-    
+
                 group.add_nackfrag(cit->sequenceNumber, frag_sns, nackfrag_count_);
             }
         }
