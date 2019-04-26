@@ -103,27 +103,6 @@ class SubscriberHistory: public rtps::ReaderHistory
          */
         bool remove_change_sub(rtps::CacheChange_t* change);
 
-        //!Increase the unread count.
-        inline void increaseUnreadCount()
-        {
-            ++m_unreadCacheCount;
-        }
-
-        //!Decrease the unread count.
-        inline void decreaseUnreadCount()
-        {
-            if(m_unreadCacheCount>0)
-                --m_unreadCacheCount;
-        }
-
-        /** Get the unread count.
-         * @return Unread count
-         */
-        inline uint64_t getUnreadCount() const
-        {
-            return m_unreadCacheCount;
-        }
-
         /**
          * @brief A method to set the next deadline for the given instance
          * @param handle The handle to the instance
@@ -148,8 +127,6 @@ class SubscriberHistory: public rtps::ReaderHistory
 
         typedef std::map<rtps::InstanceHandle_t, KeyedChanges> t_m_Inst_Caches;
 
-        //!Number of unread CacheChange_t.
-        uint64_t m_unreadCacheCount;
         //!Map where keys are instance handles and values vectors of cache changes
         t_m_Inst_Caches keyed_changes_;
         //!Time point when the next deadline will occur (only used for topics with no key)

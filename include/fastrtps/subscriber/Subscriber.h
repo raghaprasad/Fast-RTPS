@@ -21,6 +21,7 @@
 #define SUBSCRIBER_H_
 
 #include "../rtps/common/Guid.h"
+#include "../rtps/common/Time_t.h"
 #include "../attributes/SubscriberAttributes.h"
 #include "../qos/DeadlineMissedStatus.h"
 #include "../qos/LivelinessChangedStatus.h"
@@ -54,10 +55,11 @@ public:
      */
     const rtps::GUID_t& getGuid();
 
-    /**
-     * Method to block the current thread until an unread message is available
+    /*!
+     * Method to block the current thread until an unread sample is available.
+     * @param timeout Maximun time the function will be blocked if any sample is received.
      */
-    void waitForUnreadMessage();
+    bool wait_for_unread_samples(const Duration_t& timeout);
 
     /**
      * Read next unread Data from the Subscriber.
@@ -99,7 +101,7 @@ public:
      * Get the unread count.
      * @return Unread count
      */
-    uint64_t getUnreadCount() const;
+    uint64_t get_unread_count() const;
 
     /**
      * @brief Get the requested deadline missed status
