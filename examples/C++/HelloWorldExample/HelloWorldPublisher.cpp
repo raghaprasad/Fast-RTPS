@@ -34,7 +34,26 @@ HelloWorldPublisher::HelloWorldPublisher():mp_participant(nullptr),
 mp_publisher(nullptr)
 {
 
+}
 
+bool HelloWorldPublisher::init(eprosima::fastrtps::Participant* participant) {
+    //CREATE THE PUBLISHER
+    PublisherAttributes Wparam;
+    Wparam.topic.topicKind = NO_KEY;
+    Wparam.topic.topicDataType = "HelloWorld";
+    Wparam.topic.topicName = "HelloWorldTopic";
+    Wparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
+    Wparam.topic.historyQos.depth = 30;
+    Wparam.topic.resourceLimitsQos.max_samples = 50;
+    Wparam.topic.resourceLimitsQos.allocated_samples = 20;
+    Wparam.times.heartbeatPeriod.seconds = 2;
+    Wparam.times.heartbeatPeriod.fraction = 200*1000*1000;
+    Wparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
+    mp_publisher = Domain::createPublisher(participant,Wparam,(PublisherListener*)&m_listener);
+    if(mp_publisher == nullptr)
+        return false;
+
+    return true;
 }
 
 bool HelloWorldPublisher::init()
@@ -53,27 +72,11 @@ bool HelloWorldPublisher::init()
 
     if(mp_participant==nullptr)
         return false;
-    //REGISTER THE TYPE
 
+    //REGISTER THE TYPE
     Domain::registerType(mp_participant,&m_type);
 
-    //CREATE THE PUBLISHER
-    PublisherAttributes Wparam;
-    Wparam.topic.topicKind = NO_KEY;
-    Wparam.topic.topicDataType = "HelloWorld";
-    Wparam.topic.topicName = "HelloWorldTopic";
-    Wparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
-    Wparam.topic.historyQos.depth = 30;
-    Wparam.topic.resourceLimitsQos.max_samples = 50;
-    Wparam.topic.resourceLimitsQos.allocated_samples = 20;
-    Wparam.times.heartbeatPeriod.seconds = 2;
-    Wparam.times.heartbeatPeriod.fraction = 200*1000*1000;
-    Wparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
-    mp_publisher = Domain::createPublisher(mp_participant,Wparam,(PublisherListener*)&m_listener);
-    if(mp_publisher == nullptr)
-        return false;
-
-    return true;
+    return init(mp_participant);
 
 }
 

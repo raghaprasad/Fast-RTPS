@@ -33,6 +33,26 @@ mp_subscriber(nullptr)
 {
 }
 
+bool HelloWorldSubscriber::init(eprosima::fastrtps::Participant* participant) {
+    //CREATE THE SUBSCRIBER
+    SubscriberAttributes Rparam;
+    Rparam.topic.topicKind = NO_KEY;
+    Rparam.topic.topicDataType = "HelloWorld";
+    Rparam.topic.topicName = "HelloWorldTopic";
+    Rparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
+    Rparam.topic.historyQos.depth = 30;
+    Rparam.topic.resourceLimitsQos.max_samples = 50;
+    Rparam.topic.resourceLimitsQos.allocated_samples = 20;
+    Rparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
+    Rparam.qos.m_durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
+    mp_subscriber = Domain::createSubscriber(participant,Rparam,(SubscriberListener*)&m_listener);
+
+    if(mp_subscriber == nullptr)
+        return false;
+
+    return true;
+}
+
 bool HelloWorldSubscriber::init()
 {
     ParticipantAttributes PParam;
@@ -50,24 +70,7 @@ bool HelloWorldSubscriber::init()
     //REGISTER THE TYPE
 
     Domain::registerType(mp_participant,&m_type);
-    //CREATE THE SUBSCRIBER
-    SubscriberAttributes Rparam;
-    Rparam.topic.topicKind = NO_KEY;
-    Rparam.topic.topicDataType = "HelloWorld";
-    Rparam.topic.topicName = "HelloWorldTopic";
-    Rparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
-    Rparam.topic.historyQos.depth = 30;
-    Rparam.topic.resourceLimitsQos.max_samples = 50;
-    Rparam.topic.resourceLimitsQos.allocated_samples = 20;
-    Rparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
-    Rparam.qos.m_durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
-    mp_subscriber = Domain::createSubscriber(mp_participant,Rparam,(SubscriberListener*)&m_listener);
-
-    if(mp_subscriber == nullptr)
-        return false;
-
-
-    return true;
+    return init(mp_participant);
 }
 
 HelloWorldSubscriber::~HelloWorldSubscriber() {

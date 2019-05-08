@@ -35,6 +35,7 @@ public:
 	virtual ~HelloWorldPublisher();
 	//!Initialize
 	bool init();
+	bool init(eprosima::fastrtps::Participant* mp_participant);
 	//!Publish a sample
 	bool publish(bool waitForListener = true);
 	//!Run for number samples

@@ -259,7 +259,7 @@ add_subdirectory(test)
 ###############################################################################
 # Examples
 ###############################################################################
-option(COMPILE_EXAMPLES "Build example" OFF)
+option(COMPILE_EXAMPLES "Build example" ON)
 
 if(EPROSIMA_BUILD AND IS_TOP_LEVEL AND NOT EPROSIMA_INSTALLER AND NOT EPROSIMA_INSTALLER_MINION)
     set(COMPILE_EXAMPLES ON)
@@ -368,7 +368,7 @@ set(CPACK_COMPONENT_LICENSES_HIDDEN 1)
 
 set(CPACK_COMPONENTS_ALL headers licenses)
 
-option(INSTALL_EXAMPLES "Install example" OFF)
+option(INSTALL_EXAMPLES "Install example" ON)
 if(EPROSIMA_INSTALLER)
     set(INSTALL_EXAMPLES ON)
 endif()

@@ -32,8 +32,10 @@ int main(int argc, char** argv)
 {
     std::cout << "Starting "<< std::endl;
     int type = 1;
-    int count = 10;
-    long sleep = 100;
+    int count = 60;
+    long sleep = 1000;
+    int subs = 1;
+    bool reuseParticipant = false;
     if(argc > 1)
     {
         if(strcmp(argv[1],"publisher")==0)
@@ -41,10 +43,14 @@ int main(int argc, char** argv)
             type = 1;
             if (argc >= 3)
             {
-                count = atoi(argv[2]);
-                if (argc == 4)
-                {
-                    sleep = atoi(argv[3]);
+                // count = atoi(argv[2]);
+                subs = atoi(argv[2]);
+                // if (argc == 4)
+                // {
+                //     sleep = atoi(argv[3]);
+                // }
+                if (argc == 4) {
+                    reuseParticipant = strcmp(argv[1],"true")==0;
                 }
             }
         }
@@ -62,8 +68,35 @@ int main(int argc, char** argv)
     {
         case 1:
             {
+                ParticipantAttributes PParam;
+                PParam.rtps.builtin.use_SIMPLE_RTPSParticipantDiscoveryProtocol = true;
+                PParam.rtps.builtin.use_SIMPLE_EndpointDiscoveryProtocol = true;
+                PParam.rtps.builtin.m_simpleEDP.use_PublicationReaderANDSubscriptionWriter = true;
+                PParam.rtps.builtin.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
+                PParam.rtps.builtin.domainId = 0;
+                PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
+                PParam.rtps.setName("Participant_pub");
+                eprosima::fastrtps::Participant* participant = Domain::createParticipant(PParam);
+                HelloWorldPubSubType mtype;
+                if (nullptr == participant) {
+                    break;
+                }
+                Domain::registerType(participant,&mtype);
+                std::cout << "Total  number of subs " << subs;
+
                 HelloWorldPublisher mypub;
-                if(mypub.init())
+                if(mypub.init(participant))
+                {
+                    for (int i = 0 ; i < subs ; i ++) {
+                        HelloWorldSubscriber mysub;
+                        if (!reuseParticipant) {
+                            mysub.init();
+                        } else {
+                            mysub.init(participant);
+                        }
+                    }
+                }
+                if(mypub.init(participant))
                 {
                     mypub.run(count, sleep);
                 }
