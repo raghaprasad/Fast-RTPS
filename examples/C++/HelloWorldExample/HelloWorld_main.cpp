@@ -24,10 +24,20 @@
 
 #include <fastrtps/utils/eClock.h>
 #include <fastrtps/log/Log.h>
+#include <fastrtps/utils/eClock.h>
+
+#include <thread>
 
 using namespace eprosima;
 using namespace fastrtps;
 using namespace rtps;
+
+void doSomething() {
+                    for (int i = 0; i < 60; i++) {
+                        eClock::my_sleep(1000);
+                    }
+                }
+
 int main(int argc, char** argv)
 {
     std::cout << "Starting "<< std::endl;
@@ -81,25 +91,29 @@ int main(int argc, char** argv)
                 if (nullptr == participant) {
                     break;
                 }
-                Domain::registerType(participant,&mtype);
-                std::cout << "Total  number of subs " << subs;
+                
 
-                HelloWorldPublisher mypub;
-                if(mypub.init(participant))
-                {
-                    for (int i = 0 ; i < subs ; i ++) {
-                        HelloWorldSubscriber mysub;
-                        if (!reuseParticipant) {
-                            mysub.init();
-                        } else {
-                            mysub.init(participant);
-                        }
-                    }
-                }
-                if(mypub.init(participant))
-                {
-                    mypub.run(count, sleep);
-                }
+                std::thread t (doSomething); 
+                t.join();
+                // Domain::registerType(participant,&mtype);
+                // std::cout << "Total  number of subs " << subs;
+
+                // HelloWorldPublisher mypub;
+                // if(mypub.init(participant))
+                // {
+                //     for (int i = 0 ; i < subs ; i ++) {
+                //         HelloWorldSubscriber mysub;
+                //         if (!reuseParticipant) {
+                //             mysub.init();
+                //         } else {
+                //             mysub.init(participant);
+                //         }
+                //     }
+                // }
+                // if(mypub.init(participant))
+                // {
+                //     mypub.run(count, sleep);
+                // }
                 break;
             }
         case 2:
