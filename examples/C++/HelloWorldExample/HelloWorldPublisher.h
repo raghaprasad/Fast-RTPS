@@ -40,6 +40,7 @@ public:
 	bool publish(bool waitForListener = true);
 	//!Run for number samples
 	void run(uint32_t number, uint32_t sleep);
+	void runThread(uint32_t number, uint32_t sleep);
 private:
 	HelloWorld m_Hello;
 	eprosima::fastrtps::Participant* mp_participant;
@@ -54,7 +55,6 @@ private:
 		int n_matched;
         bool firstConnected;
 	}m_listener;
-	void runThread(uint32_t number, uint32_t sleep);
 	HelloWorldPubSubType m_type;
 };
 

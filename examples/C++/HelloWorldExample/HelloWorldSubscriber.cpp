@@ -33,7 +33,8 @@ mp_subscriber(nullptr)
 {
 }
 
-bool HelloWorldSubscriber::init(eprosima::fastrtps::Participant* participant) {
+bool HelloWorldSubscriber::initm(eprosima::fastrtps::Participant* participant) {
+    std::cout << "Creating a subscriber with participant : " << participant << std::endl;
     //CREATE THE SUBSCRIBER
     SubscriberAttributes Rparam;
     Rparam.topic.topicKind = NO_KEY;
@@ -70,7 +71,7 @@ bool HelloWorldSubscriber::init()
     //REGISTER THE TYPE
 
     Domain::registerType(mp_participant,&m_type);
-    return init(mp_participant);
+    return initm(mp_participant);
 }
 
 HelloWorldSubscriber::~HelloWorldSubscriber() {

@@ -38,7 +38,7 @@ public:
 	virtual ~HelloWorldSubscriber();
 	//!Initialize the subscriber
 	bool init();
-	bool init(eprosima::fastrtps::Participant* participant);
+	bool initm(eprosima::fastrtps::Participant* participant);
 	//!RUN the subscriber
 	void run();
 	//!Run the subscriber until number samples have been recevied.
