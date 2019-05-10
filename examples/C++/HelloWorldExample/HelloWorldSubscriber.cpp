@@ -37,15 +37,22 @@ bool HelloWorldSubscriber::initm(eprosima::fastrtps::Participant* participant) {
     std::cout << "Creating a subscriber with participant : " << participant << std::endl;
     //CREATE THE SUBSCRIBER
     SubscriberAttributes Rparam;
-    Rparam.topic.topicKind = NO_KEY;
+    // Rparam.topic.topicKind = NO_KEY;
     Rparam.topic.topicDataType = "HelloWorld";
     Rparam.topic.topicName = "HelloWorldTopic";
+    Rparam.topic.resourceLimitsQos.max_samples = 1;
+    Rparam.topic.resourceLimitsQos.allocated_samples = 1;
+    // Rparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
+    // Rparam.topic.historyQos.depth = 30;
+    // Rparam.topic.resourceLimitsQos.max_samples = 50;
+    // Rparam.topic.resourceLimitsQos.allocated_samples = 20;
+    // Rparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
+    // Rparam.qos.m_durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
     Rparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
-    Rparam.topic.historyQos.depth = 30;
-    Rparam.topic.resourceLimitsQos.max_samples = 50;
-    Rparam.topic.resourceLimitsQos.allocated_samples = 20;
-    Rparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
-    Rparam.qos.m_durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
+    Rparam.qos.m_durability.kind = VOLATILE_DURABILITY_QOS;
+    Rparam.qos.m_reliability.kind = BEST_EFFORT_RELIABILITY_QOS;
+    Rparam.topic.historyQos.depth =  1;
+
     mp_subscriber = Domain::createSubscriber(participant,Rparam,(SubscriberListener*)&m_listener);
 
     if(mp_subscriber == nullptr)

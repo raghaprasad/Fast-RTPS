@@ -25,6 +25,7 @@
 #include <fastrtps/utils/eClock.h>
 #include <fastrtps/log/Log.h>
 #include <fastrtps/utils/eClock.h>
+#include <fastrtps/transport/UDPv4TransportDescriptor.h>
 
 #include <thread>
 
@@ -42,7 +43,7 @@ int main(int argc, char** argv)
 {
     std::cout << "Starting "<< std::endl;
     int type = 1;
-    int count = 60;
+    int count = 20;
     long sleep = 1000;
     int subs = 1;
     bool reuseParticipant = false;
@@ -94,13 +95,21 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    auto custom_transport = std::make_shared<UDPv4TransportDescriptor>();
+    custom_transport->sendBufferSize = 10500;
+    custom_transport->receiveBufferSize = 10500;
+
+
+
     ParticipantAttributes PParam;
-    PParam.rtps.builtin.use_SIMPLE_RTPSParticipantDiscoveryProtocol = true;
-    PParam.rtps.builtin.use_SIMPLE_EndpointDiscoveryProtocol = true;
-    PParam.rtps.builtin.m_simpleEDP.use_PublicationReaderANDSubscriptionWriter = true;
-    PParam.rtps.builtin.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
+    // PParam.rtps.builtin.use_SIMPLE_RTPSParticipantDiscoveryProtocol = true;
+    // PParam.rtps.builtin.use_SIMPLE_EndpointDiscoveryProtocol = true;
+    // PParam.rtps.builtin.m_simpleEDP.use_PublicationReaderANDSubscriptionWriter = true;
+    // PParam.rtps.builtin.m_simpleEDP.use_PublicationWriterANDSubscriptionReader = true;
     PParam.rtps.builtin.domainId = 0;
     PParam.rtps.builtin.leaseDuration = c_TimeInfinite;
+    PParam.rtps.useBuiltinTransports = false;
+    PParam.rtps.userTransports.push_back(custom_transport);
     PParam.rtps.setName("Participant_pub");
 
     switch(type)

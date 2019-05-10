@@ -39,16 +39,20 @@ mp_publisher(nullptr)
 bool HelloWorldPublisher::init(eprosima::fastrtps::Participant* participant) {
     //CREATE THE PUBLISHER
     PublisherAttributes Wparam;
-    Wparam.topic.topicKind = NO_KEY;
+    // Wparam.topic.topicKind = NO_KEY;
     Wparam.topic.topicDataType = "HelloWorld";
     Wparam.topic.topicName = "HelloWorldTopic";
     Wparam.topic.historyQos.kind = KEEP_LAST_HISTORY_QOS;
-    Wparam.topic.historyQos.depth = 30;
-    Wparam.topic.resourceLimitsQos.max_samples = 50;
-    Wparam.topic.resourceLimitsQos.allocated_samples = 20;
-    Wparam.times.heartbeatPeriod.seconds = 2;
-    Wparam.times.heartbeatPeriod.fraction = 200*1000*1000;
-    Wparam.qos.m_reliability.kind = RELIABLE_RELIABILITY_QOS;
+    Wparam.topic.historyQos.depth = 1;
+    Wparam.topic.resourceLimitsQos.max_samples = 1;
+    Wparam.topic.resourceLimitsQos.allocated_samples = 1;
+
+    // Wparam.topic.resourceLimitsQos.max_samples = 50;
+    // Wparam.topic.resourceLimitsQos.allocated_samples = 20;
+    // Wparam.times.heartbeatPeriod.seconds = 2;
+    // Wparam.times.heartbeatPeriod.fraction = 200*1000*1000;
+    Wparam.qos.m_durability.kind = VOLATILE_DURABILITY_QOS;
+    Wparam.qos.m_reliability.kind = BEST_EFFORT_RELIABILITY_QOS;
     mp_publisher = Domain::createPublisher(participant,Wparam,(PublisherListener*)&m_listener);
     if(mp_publisher == nullptr)
         return false;
