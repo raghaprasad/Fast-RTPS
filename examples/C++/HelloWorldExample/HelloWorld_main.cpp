@@ -177,11 +177,19 @@ int main(int argc, char** argv)
                 std::cout << "Total  number of subs " << subs << std::endl;
                 HelloWorldPublisher mypub;
                 std::vector<std::thread> threadPool; 
+                std::vector<eprosima::fastrtps::Participant*> participants;
                 if(mypub.init(participant)) {
                     std::thread thread(&HelloWorldPublisher::runThread, &mypub, count, sleep);
                     for (int i = 0 ; i < subs ; i ++) {
                         // memory leak -- but thats ok 
-                        threadPool.emplace_back(&HelloWorldSubscriber::initm, new HelloWorldSubscriber(), participant);
+                         if (reuseParticipant) {
+                            threadPool.emplace_back(&HelloWorldSubscriber::initm, new HelloWorldSubscriber(), participant);
+                        } else {
+                            eprosima::fastrtps::Participant* p = Domain::createParticipant(PParam);
+                            Domain::registerType(p, &mtype);
+                            threadPool.emplace_back(&HelloWorldSubscriber::initm, new HelloWorldSubscriber(), p);
+                            participants.push_back(p);
+                        }
                     }
                     for (int i = 0 ; i < threadPool.size() ; i ++) {
                         threadPool[i].join();
